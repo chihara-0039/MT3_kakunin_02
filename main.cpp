@@ -62,8 +62,8 @@ Matrix4x4 MakeRotateXMatrix(float radian) {
 
     result.m[0][0] = 1.0f;
     result.m[1][1] = std::cos(radian);
-    result.m[1][2] = std::sin(radian);
-    result.m[2][1] = -std::sin(radian);
+    result.m[1][2] = -std::sin(radian);
+    result.m[2][1] = std::sin(radian);
     result.m[2][2] = std::cos(radian);
     result.m[3][3] = 1.0f;
 
