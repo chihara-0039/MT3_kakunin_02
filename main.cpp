@@ -6,6 +6,7 @@ const char kWindowTitle[] = "LE2C_21_チハラ_シゴウ_MT3_kakunin_05";
 struct Matrix4x4 {
     float m[4][4];
 };
+
 struct Vector3 {
     float x, y, z;
 };
@@ -62,8 +63,8 @@ Matrix4x4 MakeRotateXMatrix(float radian) {
 
     result.m[0][0] = 1.0f;
     result.m[1][1] = std::cos(radian);
-    result.m[1][2] = -std::sin(radian);
-    result.m[2][1] = std::sin(radian);
+    result.m[1][2] = std::sin(radian);
+    result.m[2][1] = -std::sin(radian);
     result.m[2][2] = std::cos(radian);
     result.m[3][3] = 1.0f;
 
@@ -75,9 +76,9 @@ Matrix4x4 MakeRotateYMatrix(float radian) {
     Matrix4x4 result = {};
 
     result.m[0][0] = std::cos(radian);
-    result.m[0][2] = std::sin(radian);
+    result.m[0][2] = -std::sin(radian);
     result.m[1][1] = 1.0f;
-    result.m[2][0] = -std::sin(radian);
+    result.m[2][0] = std::sin(radian);
     result.m[2][2] = std::cos(radian);
     result.m[3][3] = 1.0f;
 
@@ -89,8 +90,8 @@ Matrix4x4 MakeRotateZMatrix(float radian) {
     Matrix4x4 result = {};
 
     result.m[0][0] = std::cos(radian);
-    result.m[0][1] = -std::sin(radian);
-    result.m[1][0] = std::sin(radian);
+    result.m[0][1] = std::sin(radian);
+    result.m[1][0] = -std::sin(radian);
     result.m[1][1] = std::cos(radian);
     result.m[2][2] = 1.0f;
     result.m[3][3] = 1.0f;
@@ -140,7 +141,7 @@ Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate,
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Vector3 scale{ 1.2f, 0.79f, -2.1f };
-    Vector3 rotate{ 0.4f, 1.43f, 0.8f };
+    Vector3 rotate{ 0.4f, 1.43f, -0.8f };
     Vector3 translate{ 2.7f, -4.15f, 1.57f };
 
     // ライブラリの初期化
