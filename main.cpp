@@ -1,4 +1,7 @@
 #include <Novice.h>
+#define _USE_MATH_DEFINES
+#include <math.h>
+#include <assert.h>
 
 const char kWindowTitle[] = "LE2C_21_チハラ_シゴウ_MT3_kakunin_02";
 
@@ -40,24 +43,103 @@ Matrix4x4 Multiply(const Matrix4x4& m1, const Matrix4x4& m2) {
 }
 
 //4.逆行列
-Matrix4x4 Inverse(const Matrix4x4& m) {
-	Matrix4x4 result{};
+Matrix4x4 Inverse(Matrix4x4 m) {
+	Matrix4x4 result;
+	float det;
+	int i;
 
-	// 上位3x3の逆行列を計算（ここでは転置＝回転部分の逆）
-	for (int i = 0; i < 3; ++i)
-		for (int j = 0; j < 3; ++j)
-			result.m[i][j] = m.m[j][i];
+	//逆行列の計算（くっそだるい）
+	result.m[0][0] =
+		m.m[1][1] * m.m[2][2] * m.m[3][3] - m.m[1][1] * m.m[2][3] * m.m[3][2] -
+		m.m[2][1] * m.m[1][2] * m.m[3][3] + m.m[2][1] * m.m[1][3] * m.m[3][2] +
+		m.m[3][1] * m.m[1][2] * m.m[2][3] - m.m[3][1] * m.m[1][3] * m.m[2][2];
 
-	// 平行移動の逆を計算（R^-1 * -T）
-	for (int i = 0; i < 3; ++i) {
-		result.m[i][3] = 0.0f;
-		for (int j = 0; j < 3; ++j)
-			result.m[i][3] -= result.m[i][j] * m.m[j][3];
-	}
+	result.m[0][1] =
+		-m.m[0][1] * m.m[2][2] * m.m[3][3] + m.m[0][1] * m.m[2][3] * m.m[3][2] +
+		m.m[2][1] * m.m[0][2] * m.m[3][3] - m.m[2][1] * m.m[0][3] * m.m[3][2] -
+		m.m[3][1] * m.m[0][2] * m.m[2][3] + m.m[3][1] * m.m[0][3] * m.m[2][2];
 
-	// 最後の行は固定
-	result.m[3][0] = result.m[3][1] = result.m[3][2] = 0.0f;
-	result.m[3][3] = 1.0f;
+	result.m[0][2] =
+		m.m[0][1] * m.m[1][2] * m.m[3][3] - m.m[0][1] * m.m[1][3] * m.m[3][2] -
+		m.m[1][1] * m.m[0][2] * m.m[3][3] + m.m[1][1] * m.m[0][3] * m.m[3][2] +
+		m.m[3][1] * m.m[0][2] * m.m[1][3] - m.m[3][1] * m.m[0][3] * m.m[1][2];
+
+	result.m[0][3] =
+		-m.m[0][1] * m.m[1][2] * m.m[2][3] + m.m[0][1] * m.m[1][3] * m.m[2][2] +
+		m.m[1][1] * m.m[0][2] * m.m[2][3] - m.m[1][1] * m.m[0][3] * m.m[2][2] -
+		m.m[2][1] * m.m[0][2] * m.m[1][3] + m.m[2][1] * m.m[0][3] * m.m[1][2];
+
+	result.m[1][0] =
+		-m.m[1][0] * m.m[2][2] * m.m[3][3] + m.m[1][0] * m.m[2][3] * m.m[3][2] +
+		m.m[2][0] * m.m[1][2] * m.m[3][3] - m.m[2][0] * m.m[1][3] * m.m[3][2] -
+		m.m[3][0] * m.m[1][2] * m.m[2][3] + m.m[3][0] * m.m[1][3] * m.m[2][2];
+
+	result.m[1][1] =
+		m.m[0][0] * m.m[2][2] * m.m[3][3] - m.m[0][0] * m.m[2][3] * m.m[3][2] -
+		m.m[2][0] * m.m[0][2] * m.m[3][3] + m.m[2][0] * m.m[0][3] * m.m[3][2] +
+		m.m[3][0] * m.m[0][2] * m.m[2][3] - m.m[3][0] * m.m[0][3] * m.m[2][2];
+
+	result.m[1][2] =
+		-m.m[0][0] * m.m[1][2] * m.m[3][3] + m.m[0][0] * m.m[1][3] * m.m[3][2] +
+		m.m[1][0] * m.m[0][2] * m.m[3][3] - m.m[1][0] * m.m[0][3] * m.m[3][2] -
+		m.m[3][0] * m.m[0][2] * m.m[1][3] + m.m[3][0] * m.m[0][3] * m.m[1][2];
+
+	result.m[1][3] =
+		m.m[0][0] * m.m[1][2] * m.m[2][3] - m.m[0][0] * m.m[1][3] * m.m[2][2] -
+		m.m[1][0] * m.m[0][2] * m.m[2][3] + m.m[1][0] * m.m[0][3] * m.m[2][2] +
+		m.m[2][0] * m.m[0][2] * m.m[1][3] - m.m[2][0] * m.m[0][3] * m.m[1][2];
+
+	result.m[2][0] =
+		m.m[1][0] * m.m[2][1] * m.m[3][3] - m.m[1][0] * m.m[2][3] * m.m[3][1] -
+		m.m[2][0] * m.m[1][1] * m.m[3][3] + m.m[2][0] * m.m[1][3] * m.m[3][1] +
+		m.m[3][0] * m.m[1][1] * m.m[2][3] - m.m[3][0] * m.m[1][3] * m.m[2][1];
+
+	result.m[2][1] =
+		-m.m[0][0] * m.m[2][1] * m.m[3][3] + m.m[0][0] * m.m[2][3] * m.m[3][1] +
+		m.m[2][0] * m.m[0][1] * m.m[3][3] - m.m[2][0] * m.m[0][3] * m.m[3][1] -
+		m.m[3][0] * m.m[0][1] * m.m[2][3] + m.m[3][0] * m.m[0][3] * m.m[2][1];
+
+	result.m[2][2] =
+		m.m[0][0] * m.m[1][1] * m.m[3][3] - m.m[0][0] * m.m[1][3] * m.m[3][1] -
+		m.m[1][0] * m.m[0][1] * m.m[3][3] + m.m[1][0] * m.m[0][3] * m.m[3][1] +
+		m.m[3][0] * m.m[0][1] * m.m[1][3] - m.m[3][0] * m.m[0][3] * m.m[1][1];
+
+	result.m[2][3] =
+		-m.m[0][0] * m.m[1][1] * m.m[2][3] + m.m[0][0] * m.m[1][3] * m.m[2][1] +
+		m.m[1][0] * m.m[0][1] * m.m[2][3] - m.m[1][0] * m.m[0][3] * m.m[2][1] -
+		m.m[2][0] * m.m[0][1] * m.m[1][3] + m.m[2][0] * m.m[0][3] * m.m[1][1];
+
+	result.m[3][0] =
+		-m.m[1][0] * m.m[2][1] * m.m[3][2] + m.m[1][0] * m.m[2][2] * m.m[3][1] +
+		m.m[2][0] * m.m[1][1] * m.m[3][2] - m.m[2][0] * m.m[1][2] * m.m[3][1] -
+		m.m[3][0] * m.m[1][1] * m.m[2][2] + m.m[3][0] * m.m[1][2] * m.m[2][1];
+
+	result.m[3][1] =
+		m.m[0][0] * m.m[2][1] * m.m[3][2] - m.m[0][0] * m.m[2][2] * m.m[3][1] -
+		m.m[2][0] * m.m[0][1] * m.m[3][2] + m.m[2][0] * m.m[0][2] * m.m[3][1] +
+		m.m[3][0] * m.m[0][1] * m.m[2][2] - m.m[3][0] * m.m[0][2] * m.m[2][1];
+
+	result.m[3][2] =
+		-m.m[0][0] * m.m[1][1] * m.m[3][2] + m.m[0][0] * m.m[1][2] * m.m[3][1] +
+		m.m[1][0] * m.m[0][1] * m.m[3][2] - m.m[1][0] * m.m[0][2] * m.m[3][1] -
+		m.m[3][0] * m.m[0][1] * m.m[1][2] + m.m[3][0] * m.m[0][2] * m.m[1][1];
+
+	result.m[3][3] =
+		m.m[0][0] * m.m[1][1] * m.m[2][2] - m.m[0][0] * m.m[1][2] * m.m[2][1] -
+		m.m[1][0] * m.m[0][1] * m.m[2][2] + m.m[1][0] * m.m[0][2] * m.m[2][1] +
+		m.m[2][0] * m.m[0][1] * m.m[1][2] - m.m[2][0] * m.m[0][2] * m.m[1][1];
+
+	det = m.m[0][0] * result.m[0][0] + m.m[0][1] * result.m[1][0] +
+		m.m[0][2] * result.m[2][0] + m.m[0][3] * result.m[3][0];
+
+	if (det == 0)
+		return Matrix4x4{}; 
+
+	det = 1.0f / det;
+
+	for (i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+			result.m[i][j] = result.m[i][j] * det;
 
 	return result;
 }
@@ -72,7 +154,7 @@ Matrix4x4 Transpose(const Matrix4x4& m) {
 }
 
 //6.単位行列の作成
-Matrix4x4 MakeIdentity() {
+Matrix4x4 MakeIdentity4x4() {
 	Matrix4x4 result{};
 	for (int i = 0; i < 4; ++i)
 		result.m[i][i] = 1.0f;
@@ -82,7 +164,11 @@ Matrix4x4 MakeIdentity() {
 static const int kRowHeight = 20;
 static const int kColumnWidth = 60;
 
-void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix) {
+void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label) {
+	// ラベル表示
+	Novice::ScreenPrintf(x, y - kRowHeight, "%s", label);
+
+	// 行列要素表示
 	for (int row = 0; row < 4; ++row) {
 		for (int column = 0; column < 4; ++column) {
 			Novice::ScreenPrintf(
@@ -102,6 +188,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	char keys[256] = {0};
 	char preKeys[256] = {0};
 
+	Matrix4x4 m1 = { 3.2f, 0.7f, 9.6f, 4.4f,
+					 5.5f, 1.3f, 7.8f, 2.1f,
+					 6.9f, 8.0f, 2.6f, 1.0f,
+					 0.5f, 7.2f, 5.1f, 3.3f };
+
+	Matrix4x4 m2 = { 4.1f, 6.5f, 3.3f, 2.2f,
+					 8.8f, 0.6f, 9.9f, 7.7f,
+					 1.1f, 5.5f, 6.6f, 0.0f,
+					 3.3f, 9.9f, 8.8f, 2.2f };
+
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -115,6 +211,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
+
+		Matrix4x4 resultAdd = Add(m1, m2);
+		Matrix4x4 resultMultiply = Multiply(m1, m2);
+		Matrix4x4 resultSubtract = Subtract(m1, m2);
+		Matrix4x4 inverseM1 = Inverse(m1);
+		Matrix4x4 inverseM2 = Inverse(m2);
+		Matrix4x4 transposeM1 = Transpose(m1);
+		Matrix4x4 transposeM2 = Transpose(m2);
+		Matrix4x4 identity = MakeIdentity4x4();
+
+
+
+
 		///
 		/// ↑更新処理ここまで
 		///
@@ -122,6 +231,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓描画処理ここから
 		///
+
+		MatrixScreenPrintf(0, 0, resultAdd, "Add");
+		MatrixScreenPrintf(0, kRowHeight * 5, resultSubtract, "Subtract");
+		MatrixScreenPrintf(0, kRowHeight * 5 * 2, resultMultiply, "Multipy");
+		MatrixScreenPrintf(0, kRowHeight * 5 * 3, inverseM1, "inverseM1");
+		MatrixScreenPrintf(0, kRowHeight * 5 * 4, inverseM2, "inverseM2");
+		MatrixScreenPrintf(kColumnWidth * 5, 0, transposeM1, "transposeM1");
+		MatrixScreenPrintf(kColumnWidth * 5, kRowHeight * 5, transposeM2, "transposeM2");
+		MatrixScreenPrintf(kColumnWidth * 5, kRowHeight * 5 * 2, identity, "identity");
+
 
 		///
 		/// ↑描画処理ここまで
